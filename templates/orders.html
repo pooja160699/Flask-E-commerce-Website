@@ -1,0 +1,147 @@
+{% extends 'layout.html' %}
+{% block content %}
+
+{% include '_messages.html' %}
+
+<div class="container">
+   <nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <a class="navbar-brand" href="#">Admin</a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <div class="collapse navbar-collapse" id="navbarNavDropdown">
+    <ul class="navbar-nav">
+      <li class="nav-item active">
+        <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#">Features</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#">Pricing</a>
+      </li>
+      <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          Dropdown link
+        </a>
+        <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+          <a class="dropdown-item" href="#">Action</a>
+          <a class="dropdown-item" href="#">Another action</a>
+          <a class="dropdown-item" href="#">Something else here</a>
+        </div>
+      </li>8
+    </ul>
+  </div>
+</nav>
+<div class="container mt-5">
+    {% include '_messages.html' %}
+    <table class="table table-sm table-condensed table-striped">
+        <thead>
+        <th>Sr</th>
+        <th>Product</th>
+        <th>Price</th>
+        <th>Discount</th>
+        </thead>
+        <tbody>
+        {% for product in products %}
+        <tr>
+            <td>{{loop.index}}</td>
+            <td>{{product.name}}</td>
+            <td>{{product.price}}</td>
+            <td>{{product.discount}} %</td>
+            <td><img src="{{url_for('static',filename='images/'+product.image_1)}}" width="60" height="60"> </td>
+            <td><a href="{{url_for('updateproduct',id=product.id)}}" class="btn btn-info btn-sm">Edit</a></td>
+            <td>
+
+            <button type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#exampleModal-{{product.id}}">
+                Delete</button>
+            </td>
+        </tr>
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal-{{product.id}}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">{{product.name}}</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p class="text-danger"> Are you sure you want to delete the product ? ( {{product.name}} )</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-warning btn-sm" data-dismiss="modal">Cancel</button>
+          <form action="{{url_for('deleteproduct',id=product.id)}}" method="post">
+              <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+
+                </form>
+
+
+      </div>
+    </div>
+  </div>
+</div>
+        {% endfor %}
+        </tbody>
+    </table>
+    <div class="container mt-4">
+    {% include '_messages.html' %}
+    <div class="row">
+        <div class="col-md-12">
+        <table class="table table-sm">
+            <thead>
+            <th>Sr</th>
+            <th>Image</th>
+            <th>Name</th>
+            <th>Price</th>
+            <th>Quantity</th>
+            <th>Discount</th>
+            <th>Subtotal</th>
+            <th>Update</th>
+            <th>Remove</th>
+            </thead>
+            <tbody>
+            {% for key,product in session['Shoppingcart'].items() %}
+            {% set discount= "%0.2f" |format((product.discount/100) *product.price|float) %}
+            <tr>
+                <td>{{loop.index}}</td>
+                <td><img src="{{url_for('static',filename='images/'+product.image)}}" alt="{{product.name}}" width="50" height="45"></td>
+                <td>{{product.name}}</td>
+
+
+                <form action="{{url_for('updatecart',code=key)}}" method="post">
+                <td>{{product.price}}</td>
+                <td><input type="number"  value="{{product.quantity}}" name="quantity" min="1" max="{{product.stock}}"></td>
+                {% if product.discount>0 %}
+                <td>{{product.discount}}% &nbsp; is {{discount}}</td>
+                {% else %}
+                <td>-</td>
+                {% endif %}
+                {% set subtotal=product.quantity|int * product.price|float %}
+                <td>{{"%0.2f"|format((subtotal|float)-discount|float)}}</td>
+                <td><button class="btn btn-sm btn-info" type="submit">Update</button></td>
+                </form>
+                <td><a href="{{url_for('deleteitem',id=key)}}" class="btn btn-sm btn-danger">Remove</a></td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+            <table class="table table-sm">
+            <tr>
+                <td><a href="{{url_for('getorder')}}" class="btn btn-success">Order Now</a></td>
+                <td width="30%"></td>
+                <td colspan="3"><h5>Tax : {{tax}}</h5></td>
+                <td colspan="3"><h5>SubTotal : {{subTotal}}</h5></td>
+                <td colspan="4"><h5>GrandTotal : {{grandTotal}}</h5></td>
+                </td><a href="{{url_for('clearcart')}}" class="btn btn-danger btn-sm float-right" mr-4>Clear Cart</a></td>
+            </tr>
+            </table>
+    </div>
+</div>
+</div>
+
+</div>
+</div>
+{% endblock content %}
